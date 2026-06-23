@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ONDERZOEK.ID</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+body{margin:0;font-family:Georgia,serif;background:#f4efe6;color:#2d241c}
+.hero{height:100vh;background:linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.45)),url('https://images.unsplash.com/photo-1518546305927-5a555bb7020d?auto=format&fit=crop&w=1600&q=80');background-size:cover;display:flex;align-items:center;justify-content:center;text-align:center;color:white}
+.hero-content{max-width:800px}
+.btn{background:#b58b52;color:white;padding:14px 24px;text-decoration:none;border-radius:8px}
+section{padding:50px 8%}
+.map-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.map,.panel{background:white;padding:20px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.1)}
+.region{display:inline-block;padding:10px 15px;margin:8px;background:#e7d9bf;border-radius:8px;cursor:pointer}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
+.card{background:#faf7f2;padding:15px;border-radius:10px}
+.controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+.perspective{padding:10px;border:none;border-radius:6px;cursor:pointer}
+footer{text-align:center;padding:30px;background:#2d241c;color:white}
+@media(max-width:900px){.map-grid,.cards{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="hero">
+<div class="hero-content">
+<h1>ONDERZOEK.ID</h1>
+<h3>Peta Ketimpangan Ekonomi Jawa 1904</h3>
+<p>Tahun 1904 pemerintah kolonial Belanda menyelidiki mengapa rakyat Jawa semakin miskin. Hasilnya tersimpan dalam arsip yang nyaris terlupakan.</p>
+<a href="#explore" class="btn">Mulai Jelajahi</a>
+</div>
+</div>
+
+<section id="explore">
+<h2>Jelajahi Wilayah</h2>
+
+<div class="controls">
+<button class="perspective" onclick="setPerspective('kolonial')">👁️ Mata Penjajah</button>
+<button class="perspective" onclick="setPerspective('pedagang')">👁️ Pedagang Non-Pribumi</button>
+<button class="perspective" onclick="setPerspective('pribumi')">👁️ Rakyat Pribumi</button>
+</div>
+
+<div class="map-grid">
+<div class="map">
+<h3>Peta Jawa & Madura (Prototype)</h3>
+<div class="region" onclick="loadRegion('surabaya')">Surabaya</div>
+<div class="region" onclick="loadRegion('malang')">Malang</div>
+<div class="region" onclick="loadRegion('madura')">Madura</div>
+
+<br><br>
+<label>Tahun: <span id="yearLabel">1904</span></label>
+<input type="range" min="1904" max="1949" value="1904" id="yearSlider" style="width:100%">
+</div>
+
+<div class="panel">
+<h3 id="regionTitle">Pilih Wilayah</h3>
+<div class="cards">
+<div class="card">
+<h4>Siapa yang Berdagang?</h4>
+<canvas id="tradeChart"></canvas>
+</div>
+
+<div class="card">
+<h4>Kondisi Rakyat Pribumi</h4>
+<p id="nativeInfo">Klik wilayah.</p>
+</div>
+
+<div class="card">
+<h4>Hari Ini</h4>
+<p id="todayInfo">Klik wilayah.</p>
+</div>
+</div>
+
+<hr>
+<h4>Sudut Pandang</h4>
+<p id="perspectiveText">Pilih perspektif di atas.</p>
+
+<button onclick="alert('Viewer arsip akan dibuka pada versi final.')">📜 Baca Arsip Aslinya</button>
+<button onclick="shareFact()">📢 Bagikan Fakta</button>
+</div>
+</div>
+</section>
+
+<footer>
+ONDERZOEK.ID — Arsip Kolonial Menjadi Pengetahuan Publik
+</footer>
+
+<script>
+let currentPerspective='kolonial';
+let currentRegion='surabaya';
+
+const regions={
+surabaya:{
+trade:[68,24,6,2],
+native:"Mayoritas penduduk bekerja sebagai buruh pelabuhan dan petani penggarap dengan akses modal terbatas.",
+today:"Surabaya tetap menjadi pusat perdagangan utama Jawa Timur.",
+perspectives:{
+kolonial:"Perdagangan berkembang melalui jaringan distribusi yang efisien.",
+pedagang:"Surabaya menawarkan peluang ekonomi besar bagi jaringan dagang regional.",
+pribumi:"Pertumbuhan perdagangan tidak selalu meningkatkan kesejahteraan rakyat lokal."
+}},
+malang:{
+trade:[45,25,10,20],
+native:"Sebagian besar masyarakat hidup dari pertanian dan perkebunan.",
+today:"Malang berkembang sebagai pusat pendidikan dan agribisnis.",
+perspectives:{
+kolonial:"Wilayah agraris yang produktif.",
+pedagang:"Komoditas perkebunan membuka pasar baru.",
+pribumi:"Keuntungan ekonomi sering tidak dinikmati petani kecil."
+}},
+madura:{
+trade:[30,10,5,55],
+native:"Banyak penduduk hidup dari pertanian lahan kering dan perdagangan kecil.",
+today:"Madura berkembang melalui konektivitas dan UMKM lokal.",
+perspectives:{
+kolonial:"Wilayah pendukung ekonomi regional.",
+pedagang:"Potensi distribusi antarpulau cukup besar.",
+pribumi:"Keterbatasan sumber daya memperbesar tantangan ekonomi."
+}}
+};
+
+let chart;
+
+function loadRegion(region){
+currentRegion=region;
+const d=regions[region];
+document.getElementById('regionTitle').innerText=region.toUpperCase();
+document.getElementById('nativeInfo').innerText=d.native;
+document.getElementById('todayInfo').innerText=d.today;
+document.getElementById('perspectiveText').innerText=d.perspectives[currentPerspective];
+
+if(chart) chart.destroy();
+chart=new Chart(document.getElementById('tradeChart'),{
+type:'pie',
+data:{
+labels:['Tionghoa','Eropa','Arab','Pribumi'],
+datasets:[{data:d.trade}]
+}
+});
+}
+
+function setPerspective(p){
+currentPerspective=p;
+document.getElementById('perspectiveText').innerText=regions[currentRegion].perspectives[p];
+}
+
+document.getElementById('yearSlider').oninput=function(){
+document.getElementById('yearLabel').innerText=this.value;
+};
+
+function shareFact(){
+alert("Fakta siap dibagikan:\\nDi Surabaya tahun 1905, pedagang Tionghoa menguasai 68% modal perdagangan yang tercatat.");
+}
+
+loadRegion('surabaya');
+</script>
+</body>
+</html>
