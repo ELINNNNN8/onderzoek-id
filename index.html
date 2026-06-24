@@ -1,160 +1,524 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ONDERZOEK.ID</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<style>
-body{margin:0;font-family:Georgia,serif;background:#f4efe6;color:#2d241c}
-.hero{height:100vh;background:linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.45)),url('https://images.unsplash.com/photo-1518546305927-5a555bb7020d?auto=format&fit=crop&w=1600&q=80');background-size:cover;display:flex;align-items:center;justify-content:center;text-align:center;color:white}
-.hero-content{max-width:800px}
-.btn{background:#b58b52;color:white;padding:14px 24px;text-decoration:none;border-radius:8px}
-section{padding:50px 8%}
-.map-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-.map,.panel{background:white;padding:20px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.1)}
-.region{display:inline-block;padding:10px 15px;margin:8px;background:#e7d9bf;border-radius:8px;cursor:pointer}
-.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
-.card{background:#faf7f2;padding:15px;border-radius:10px}
-.controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
-.perspective{padding:10px;border:none;border-radius:6px;cursor:pointer}
-footer{text-align:center;padding:30px;background:#2d241c;color:white}
-@media(max-width:900px){.map-grid,.cards{grid-template-columns:1fr}}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONDERZOEK.ID — Peta Ketimpangan Ekonomi Jawa 1904</title>
+  <meta name="description" content="Website interaktif arsip kolonial dan ketimpangan ekonomi Jawa 1904 dengan peta, timeline sejarah, perspektif narasi, dan kartu fakta media sosial." />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root{
+      --bg:#f4efe6; --bg-soft:#fbf7f1; --card:#fffaf3; --ink:#241c16; --muted:#6c5d4f;
+      --line:#e7dcc9; --gold:#b98a4a; --gold-dark:#8c6430; --teal:#305e66; --teal-soft:#e7f2f1;
+      --rose:#9d5b57; --shadow:0 18px 45px rgba(36,28,22,.12); --shadow-soft:0 8px 24px rgba(36,28,22,.08);
+      --radius:24px;
+    }
+    *{box-sizing:border-box} html{scroll-behavior:smooth}
+    body{
+      margin:0; font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+      color:var(--ink);
+      background:radial-gradient(circle at top, rgba(185,138,74,.08), transparent 28%), linear-gradient(180deg, #faf6ef 0%, #f4efe6 45%, #efe7da 100%);
+    }
+    a{color:inherit;text-decoration:none} button,input{font:inherit}
+    .wrap{width:min(1240px, calc(100% - 32px)); margin:0 auto}
+    .nav{position:sticky; top:0; z-index:40; backdrop-filter:blur(16px); background:rgba(250,246,239,.76); border-bottom:1px solid rgba(231,220,201,.8)}
+    .nav-inner{display:flex; align-items:center; justify-content:space-between; gap:16px; padding:14px 0}
+    .brand{display:flex; align-items:center; gap:12px; font-weight:800; letter-spacing:.08em}
+    .brand-badge{width:38px; height:38px; border-radius:12px; background:linear-gradient(145deg, #18262b, #4b7079); display:grid; place-items:center; color:#fff; font-size:18px; box-shadow:var(--shadow-soft)}
+    .nav-links{display:flex; gap:14px; flex-wrap:wrap}
+    .nav-links a{color:var(--muted); font-weight:600; font-size:.95rem; padding:10px 14px; border-radius:999px}
+    .nav-links a:hover{background:rgba(185,138,74,.11); color:var(--gold-dark)}
+    .hero{position:relative; overflow:hidden; min-height:calc(100vh - 68px); display:grid; align-items:center; padding:52px 0 34px}
+    .hero::before{
+      content:""; position:absolute; inset:0;
+      background:radial-gradient(circle at 20% 20%, rgba(185,138,74,.16), transparent 23%), radial-gradient(circle at 85% 30%, rgba(48,94,102,.14), transparent 20%), linear-gradient(135deg, rgba(19,26,30,.78), rgba(36,28,22,.62)), url('https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
+      filter:saturate(.9); transform:scale(1.02)
+    }
+    .hero-grid{position:relative; display:grid; grid-template-columns:1.08fr .92fr; gap:28px; align-items:center; padding:24px 0 10px}
+    .hero-copy{color:#fff; padding:10px 0}
+    .eyebrow{display:inline-flex; align-items:center; gap:8px; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.16); padding:10px 14px; border-radius:999px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; font-size:.8rem; margin-bottom:18px}
+    h1{margin:0 0 16px; font-family:Georgia,"Times New Roman",serif; font-size:clamp(3rem, 6vw, 5.8rem); line-height:.95; letter-spacing:-.03em}
+    .hero-copy p{font-size:1.08rem; line-height:1.7; max-width:62ch; color:rgba(255,255,255,.88); margin:0 0 26px}
+    .hero-actions{display:flex; gap:12px; flex-wrap:wrap; margin-top:18px}
+    .btn{display:inline-flex; align-items:center; justify-content:center; gap:10px; border:none; cursor:pointer; padding:14px 18px; border-radius:16px; font-weight:800; transition:transform .18s ease, box-shadow .18s ease, background .18s ease, color .18s ease; box-shadow:var(--shadow-soft)}
+    .btn:hover{transform:translateY(-2px)}
+    .btn-primary{background:linear-gradient(135deg, #d8b171, #b98a4a); color:#fff}
+    .btn-ghost{background:rgba(255,255,255,.12); color:#fff; border:1px solid rgba(255,255,255,.16); box-shadow:none}
+    .hero-panel{background:rgba(255,250,243,.89); border:1px solid rgba(255,255,255,.45); border-radius:30px; padding:24px; box-shadow:var(--shadow); backdrop-filter:blur(10px)}
+    .hero-panel .topline{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px}
+    .pill{display:inline-flex; align-items:center; gap:8px; padding:9px 12px; background:#f5ebdb; border:1px solid #ead7b8; color:var(--gold-dark); border-radius:999px; font-size:.88rem; font-weight:800}
+    .mini-stats{display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; margin-top:16px}
+    .stat{background:linear-gradient(180deg, #fff, #fbf7f1); border:1px solid var(--line); padding:14px; border-radius:18px}
+    .stat strong{display:block; font-size:1.28rem; margin-bottom:4px}
+    .stat span{color:var(--muted); font-size:.9rem; line-height:1.35}
+    .section{padding:28px 0 44px}
+    .section-head{display:flex; align-items:end; justify-content:space-between; gap:18px; margin:4px 0 20px}
+    .section h2{margin:0; font-family:Georgia,"Times New Roman",serif; font-size:clamp(1.7rem, 3vw, 2.5rem); letter-spacing:-.02em}
+    .section p.lead{margin:6px 0 0; color:var(--muted); line-height:1.7; max-width:72ch}
+    .panel{background:rgba(255,250,243,.92); border:1px solid rgba(231,220,201,.9); border-radius:var(--radius); box-shadow:var(--shadow)}
+    .explore-grid{display:grid; grid-template-columns:1.03fr .97fr; gap:20px; align-items:stretch}
+    .map-shell{padding:18px}
+    .map-toolbar{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; padding:6px 2px 16px}
+    .map-title{display:flex; flex-direction:column; gap:4px}
+    .map-title strong{font-size:1.08rem}
+    .map-title span{color:var(--muted); font-size:.92rem}
+    .perspective-group{display:flex; gap:8px; flex-wrap:wrap}
+    .perspective-btn{border:1px solid var(--line); background:#fff; color:var(--muted); border-radius:999px; padding:10px 13px; cursor:pointer; font-weight:700; transition:.18s ease}
+    .perspective-btn.active{background:linear-gradient(135deg, rgba(185,138,74,.17), rgba(185,138,74,.06)); color:var(--gold-dark); border-color:#ddc08e}
+    .map-view{background:linear-gradient(180deg, rgba(48,94,102,.08), rgba(185,138,74,.06)); border-radius:24px; padding:16px; border:1px solid #eadfce; min-height:430px; position:relative; overflow:hidden}
+    .map-legend{display:flex; gap:10px; flex-wrap:wrap; align-items:center; position:absolute; left:16px; bottom:16px; background:rgba(255,250,243,.93); border:1px solid rgba(231,220,201,.95); border-radius:999px; padding:10px 12px; box-shadow:var(--shadow-soft); z-index:2; font-size:.88rem; color:var(--muted)}
+    .legend-dot{width:12px; height:12px; border-radius:999px; display:inline-block}
+    .map-svg{width:100%; height:100%; min-height:398px; display:block}
+    .region{cursor:pointer; transition:transform .18s ease, opacity .18s ease, filter .18s ease; transform-origin:center}
+    .region:hover{transform:scale(1.01); filter:drop-shadow(0 8px 12px rgba(36,28,22,.18))}
+    .region.active{filter:drop-shadow(0 10px 16px rgba(185,138,74,.26))}
+    .info-shell{padding:18px; display:flex; flex-direction:column; gap:14px}
+    .info-top{display:flex; align-items:flex-start; justify-content:space-between; gap:14px; flex-wrap:wrap}
+    .info-title h3{margin:0 0 6px; font-size:1.4rem; letter-spacing:-.02em}
+    .info-title p{margin:0; color:var(--muted); line-height:1.6}
+    .badge{display:inline-flex; align-items:center; gap:8px; border-radius:999px; padding:9px 12px; border:1px solid var(--line); background:#fff; color:var(--muted); font-weight:700; font-size:.88rem}
+    .panel-grid{display:grid; gap:12px}
+    .card{background:linear-gradient(180deg, #fff, #fbf7f1); border:1px solid var(--line); border-radius:20px; padding:16px}
+    .card h4{margin:0 0 10px; font-size:1rem}
+    .card p{margin:0; color:var(--muted); line-height:1.7}
+    .cta-row{display:flex; gap:10px; flex-wrap:wrap}
+    .small-btn{border:none; cursor:pointer; padding:12px 14px; border-radius:14px; font-weight:800; transition:.18s ease; display:inline-flex; align-items:center; gap:8px}
+    .small-btn.primary{background:linear-gradient(135deg, #3d6f77, #305e66); color:#fff}
+    .small-btn.soft{background:#f6eddc; color:var(--gold-dark); border:1px solid #ead7b8}
+    .small-btn.ink{background:#f0f0ef; color:#3b332d; border:1px solid #ddd3c4}
+    .chart-box{height:240px}
+    .chart-box canvas{width:100% !important; height:100% !important}
+    .timeline-grid{display:grid; grid-template-columns:1.05fr .95fr; gap:20px}
+    .timeline-shell{padding:18px}
+    .timeline{position:relative; margin-top:16px; padding:20px 8px 8px}
+    .timeline::before{content:""; position:absolute; left:18px; right:18px; top:44px; height:2px; background:linear-gradient(90deg, #d9c6a3, #b98a4a, #d9c6a3); opacity:.85}
+    .timeline-list{display:grid; grid-template-columns:repeat(6, 1fr); gap:10px; position:relative; z-index:1}
+    .timeline-item{background:transparent; border:none; cursor:pointer; text-align:left; padding:0 4px; color:var(--muted)}
+    .timeline-dot{width:16px; height:16px; border-radius:999px; background:#fff; border:2px solid #c9b088; margin-bottom:14px; box-shadow:0 0 0 6px rgba(185,138,74,.08)}
+    .timeline-item strong{display:block; color:var(--ink); margin-bottom:6px; font-size:1rem}
+    .timeline-item span{display:block; font-size:.88rem; line-height:1.45}
+    .timeline-item.active .timeline-dot{background:linear-gradient(135deg, #b98a4a, #d7b06f); box-shadow:0 0 0 8px rgba(185,138,74,.14); border-color:#a97934}
+    .timeline-item.active strong{color:var(--gold-dark)}
+    .timeline-detail{padding:18px; display:flex; flex-direction:column; gap:14px}
+    .timeline-detail .timeline-year{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap}
+    .timeline-detail .timeline-year h3{margin:0; font-size:1.45rem}
+    .timeline-detail .timeline-year .tag{padding:8px 12px; border-radius:999px; background:var(--teal-soft); color:var(--teal); border:1px solid #cfe5e2; font-weight:800; font-size:.85rem}
+    .timeline-detail p{margin:0; color:var(--muted); line-height:1.75}
+    .timeline-facts{display:grid; grid-template-columns:repeat(3,1fr); gap:12px}
+    .timeline-facts .mini{border:1px solid var(--line); background:rgba(255,255,255,.76); border-radius:18px; padding:14px}
+    .mini strong{display:block; margin-bottom:6px}
+    .mini span{color:var(--muted); font-size:.92rem; line-height:1.55}
+    .social-grid{display:grid; grid-template-columns:.9fr 1.1fr; gap:20px}
+    .social-card{padding:18px}
+    .fact-card{border-radius:26px; background:radial-gradient(circle at top left, rgba(185,138,74,.14), transparent 26%), linear-gradient(180deg, #fffdf8, #f8f2e9); border:1px solid #ebdcc3; padding:18px; box-shadow:var(--shadow-soft); position:relative; overflow:hidden}
+    .fact-card::after{content:""; position:absolute; inset:auto -10% -28% -10%; height:52%; background:radial-gradient(circle at 50% 40%, rgba(48,94,102,.08), transparent 45%); pointer-events:none}
+    .fact-card .label{display:inline-flex; padding:8px 12px; border-radius:999px; background:#efe3cf; color:var(--gold-dark); font-weight:800; font-size:.82rem; margin-bottom:14px}
+    .fact-card h3{margin:0 0 10px; font-size:1.5rem}
+    .fact-card p{margin:0; color:var(--muted); line-height:1.7}
+    .fact-grid{display:grid; gap:12px}
+    .share-actions{display:flex; flex-wrap:wrap; gap:10px; margin-top:16px}
+    .viewer-shell{padding:18px}
+    .viewer-frame{display:grid; grid-template-columns:1.1fr .9fr; gap:16px; margin-top:14px}
+    .viewer-page{min-height:390px; background:linear-gradient(90deg, rgba(120,90,55,.08), rgba(255,255,255,0) 18%), linear-gradient(180deg, #fff, #fbf7f2); border:1px solid #e6d7be; border-radius:20px; box-shadow:inset 0 0 0 1px rgba(255,255,255,.6); padding:18px; position:relative; overflow:hidden}
+    .viewer-page::before{content:""; position:absolute; inset:14px; border:1px solid rgba(185,138,74,.18); border-radius:16px; pointer-events:none}
+    .viewer-head{display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:14px}
+    .viewer-meta{color:var(--muted); font-size:.92rem}
+    .archive-paper{background:#fffdf9; border:1px solid #e8dcc8; border-radius:16px; padding:16px; margin-top:10px; line-height:1.75; color:#4a3f35; box-shadow:var(--shadow-soft)}
+    .archive-note{font-size:.9rem; color:var(--muted); margin-top:12px}
+    .viewer-side{display:flex; flex-direction:column; gap:12px}
+    .thumb{padding:14px; border-radius:18px; border:1px solid var(--line); background:#fff; cursor:pointer}
+    .thumb.active{border-color:#d2ba90; background:linear-gradient(180deg, rgba(185,138,74,.08), rgba(255,255,255,.9))}
+    .thumb strong{display:block; margin-bottom:6px}
+    .thumb span{color:var(--muted); line-height:1.5; font-size:.92rem}
+    .modal{position:fixed; inset:0; background:rgba(28,22,18,.56); display:none; align-items:center; justify-content:center; padding:18px; z-index:80}
+    .modal.open{display:flex}
+    .modal-card{width:min(1040px, 100%); background:#fffaf3; border-radius:28px; box-shadow:var(--shadow); border:1px solid rgba(231,220,201,.95); overflow:hidden; max-height:92vh; display:flex; flex-direction:column}
+    .modal-head{display:flex; justify-content:space-between; align-items:center; gap:12px; padding:16px 18px; border-bottom:1px solid var(--line); background:rgba(255,255,255,.68)}
+    .modal-head strong{font-size:1.08rem}
+    .modal-body{padding:18px; overflow:auto}
+    .close-btn{border:none; background:#f0e6d7; color:var(--gold-dark); width:42px; height:42px; border-radius:14px; cursor:pointer; font-size:1.1rem; font-weight:900}
+    .archive-scan{display:grid; grid-template-columns:1fr 1fr; gap:16px}
+    .scan{background:linear-gradient(90deg, rgba(120,90,55,.09), rgba(255,255,255,.03) 14%), linear-gradient(180deg, #fdfaf3, #fff); border:1px solid #e5d7bf; border-radius:22px; padding:18px; min-height:380px; position:relative; overflow:hidden}
+    .scan::before{content:""; position:absolute; inset:12px; border:1px dashed rgba(185,138,74,.24); border-radius:18px; pointer-events:none}
+    .scan h3{margin:0 0 8px}
+    .scan .scan-label{display:inline-flex; background:#efe1c9; color:#825d2c; padding:7px 10px; border-radius:999px; font-weight:800; font-size:.82rem; margin-bottom:12px}
+    .scan p{margin:0 0 10px; color:#4b4238; line-height:1.7}
+    .scan-table{width:100%; border-collapse:collapse; margin-top:12px; font-size:.92rem}
+    .scan-table th,.scan-table td{border-bottom:1px solid rgba(185,138,74,.2); text-align:left; padding:9px 0}
+    .scan-table th{color:var(--gold-dark)}
+    .scan-small{margin-top:14px; color:var(--muted); font-size:.9rem; line-height:1.65}
+    .footer{padding:26px 0 34px; color:var(--muted); text-align:center; font-size:.95rem}
+    .note{font-size:.9rem; color:var(--muted); line-height:1.6}
+    @media (max-width:1060px){
+      .hero-grid,.explore-grid,.timeline-grid,.social-grid,.viewer-frame,.archive-scan{grid-template-columns:1fr}
+      .timeline-list{grid-template-columns:repeat(3,1fr)} .timeline::before{top:26px}
+    }
+    @media (max-width:720px){
+      .wrap{width:min(100% - 20px, 1240px)} .nav-inner{flex-direction:column; align-items:flex-start} .hero{min-height:auto; padding-top:26px}
+      .hero-copy p{font-size:1rem} .mini-stats,.timeline-facts{grid-template-columns:1fr} .timeline-list{grid-template-columns:1fr 1fr}
+      .section{padding:20px 0 36px} .map-view{min-height:360px} .viewer-page{min-height:auto} .share-actions,.cta-row{flex-direction:column}
+      .btn,.small-btn,.perspective-btn{width:100%; justify-content:center}
+    }
+  </style>
 </head>
 <body>
+  <div class="nav">
+    <div class="wrap nav-inner">
+      <div class="brand">
+        <div class="brand-badge">◎</div>
+        <div>ONDERZOEK.ID<div style="font-size:.78rem;color:var(--muted);font-weight:600;letter-spacing:.02em;">Peta Ketimpangan Ekonomi Jawa 1904</div></div>
+      </div>
+      <div class="nav-links">
+        <a href="#jelajah">Peta</a><a href="#timeline">Timeline</a><a href="#fakta">Fakta</a><a href="#arsip">Arsip</a>
+      </div>
+    </div>
+  </div>
 
-<div class="hero">
-<div class="hero-content">
-<h1>ONDERZOEK.ID</h1>
-<h3>Peta Ketimpangan Ekonomi Jawa 1904</h3>
-<p>Tahun 1904 pemerintah kolonial Belanda menyelidiki mengapa rakyat Jawa semakin miskin. Hasilnya tersimpan dalam arsip yang nyaris terlupakan.</p>
-<a href="#explore" class="btn">Mulai Jelajahi</a>
-</div>
-</div>
+  <header class="hero">
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <div class="eyebrow">Digital Humanities • Arsip • Interaktif</div>
+        <h1>Menjelajah ketimpangan ekonomi Jawa lewat arsip kolonial.</h1>
+        <p>Tahun 1904, pemerintah kolonial Belanda menyelidiki mengapa rakyat Jawa semakin miskin. ONDERZOEK.ID mengubah arsip itu menjadi peta interaktif, narasi sejarah, perspektif berbeda, dan kartu fakta yang mudah dibagikan.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#jelajah">Mulai Jelajahi</a>
+          <a class="btn btn-ghost" href="#arsip">Lihat Arsip Dummy</a>
+        </div>
+      </div>
+      <div class="hero-panel">
+        <div class="topline">
+          <div class="pill">✨ Prototype profesional</div>
+          <div class="pill" id="activeRegionPill">Wilayah: Surabaya</div>
+        </div>
+        <div class="note">Pilih Surabaya, Malang, atau Madura untuk melihat perbedaan komposisi dagang, kondisi rakyat pribumi, dan narasi hari ini. Perspektif kolonial, pedagang non-pribumi, dan rakyat pribumi bisa dipilih langsung.</div>
+        <div class="mini-stats">
+          <div class="stat"><strong>3</strong><span>wilayah contoh interaktif</span></div>
+          <div class="stat"><strong>3</strong><span>perspektif pembacaan data</span></div>
+          <div class="stat"><strong>6</strong><span>momen penting timeline sejarah</span></div>
+        </div>
+      </div>
+    </div>
+  </header>
 
-<section id="explore">
-<h2>Jelajahi Wilayah</h2>
+  <main class="wrap">
+    <section class="section" id="jelajah">
+      <div class="section-head">
+        <div><h2>Peta Interaktif Jawa & Madura</h2><p class="lead">Peta ini adalah versi visual yang disederhanakan. Klik wilayah untuk menampilkan data dagang, kondisi rakyat pribumi, dan narasi hari ini.</p></div>
+      </div>
 
-<div class="controls">
-<button class="perspective" onclick="setPerspective('kolonial')">👁️ Mata Penjajah</button>
-<button class="perspective" onclick="setPerspective('pedagang')">👁️ Pedagang Non-Pribumi</button>
-<button class="perspective" onclick="setPerspective('pribumi')">👁️ Rakyat Pribumi</button>
-</div>
+      <div class="explore-grid">
+        <div class="panel map-shell">
+          <div class="map-toolbar">
+            <div class="map-title"><strong>Wilayah interaktif</strong><span>Pilih wilayah di peta atau tombol di bawah.</span></div>
+            <div class="perspective-group">
+              <button class="perspective-btn active" data-perspective="kolonial">👁 Mata Penjajah</button>
+              <button class="perspective-btn" data-perspective="pedagang">👁 Pedagang Non-Pribumi</button>
+              <button class="perspective-btn" data-perspective="pribumi">👁 Rakyat Pribumi</button>
+            </div>
+          </div>
+          <div class="map-view">
+            <svg class="map-svg" viewBox="0 0 980 430" role="img" aria-label="Peta interaktif Jawa dan Madura">
+              <defs>
+                <linearGradient id="island" x1="0" x2="1"><stop offset="0%" stop-color="#efe0c5"/><stop offset="50%" stop-color="#d9be91"/><stop offset="100%" stop-color="#c69a63"/></linearGradient>
+                <linearGradient id="water" x1="0" x2="1"><stop offset="0%" stop-color="#dce8ea"/><stop offset="100%" stop-color="#eef3f4"/></linearGradient>
+                <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#2d2416" flood-opacity=".16"/></filter>
+              </defs>
+              <rect x="0" y="0" width="980" height="430" rx="26" fill="url(#water)"/>
+              <path d="M92 152 C176 108, 312 98, 392 117 C432 126, 454 156, 472 183 C493 215, 530 241, 572 250 C612 259, 655 256, 711 248 C774 238, 852 214, 910 222 C878 256, 817 289, 746 306 C662 327, 561 326, 483 313 C420 302, 357 303, 292 318 C223 334, 152 352, 76 330 C56 271, 58 211, 92 152 Z" fill="url(#island)" stroke="#8f6a3c" stroke-width="4" filter="url(#softShadow)" opacity=".98"/>
+              <path d="M648 272 C699 253, 754 250, 800 268 C825 279, 835 300, 824 320 C811 343, 781 349, 748 347 C709 345, 670 337, 641 324 C620 315, 618 286, 648 272 Z" fill="url(#island)" stroke="#8f6a3c" stroke-width="4" filter="url(#softShadow)" opacity=".98"/>
+              <g class="region" data-region="surabaya" tabindex="0" role="button" aria-label="Pilih Surabaya">
+                <circle cx="497" cy="223" r="18" fill="#305e66"/><circle cx="497" cy="223" r="30" fill="rgba(48,94,102,.15)"/>
+                <text x="524" y="228" font-size="20" font-weight="800" fill="#243036">Surabaya</text>
+              </g>
+              <g class="region" data-region="malang" tabindex="0" role="button" aria-label="Pilih Malang">
+                <circle cx="440" cy="286" r="18" fill="#9d5b57"/><circle cx="440" cy="286" r="30" fill="rgba(157,91,87,.14)"/>
+                <text x="467" y="291" font-size="20" font-weight="800" fill="#243036">Malang</text>
+              </g>
+              <g class="region" data-region="madura" tabindex="0" role="button" aria-label="Pilih Madura">
+                <circle cx="734" cy="302" r="18" fill="#b98a4a"/><circle cx="734" cy="302" r="30" fill="rgba(185,138,74,.16)"/>
+                <text x="761" y="307" font-size="20" font-weight="800" fill="#243036">Madura</text>
+              </g>
+            </svg>
+            <div class="map-legend"><span class="legend-dot" style="background:#305e66"></span> perdagangan <span class="legend-dot" style="background:#9d5b57"></span> rakyat pribumi <span class="legend-dot" style="background:#b98a4a"></span> wilayah pulau</div>
+          </div>
+        </div>
 
-<div class="map-grid">
-<div class="map">
-<h3>Peta Jawa & Madura (Prototype)</h3>
-<div class="region" onclick="loadRegion('surabaya')">Surabaya</div>
-<div class="region" onclick="loadRegion('malang')">Malang</div>
-<div class="region" onclick="loadRegion('madura')">Madura</div>
+        <div class="panel info-shell">
+          <div class="info-top">
+            <div class="info-title">
+              <h3 id="regionName">Surabaya</h3>
+              <p id="regionDescription">Kota pelabuhan dengan dominasi jaringan dagang yang kuat dan akses modal yang timpang.</p>
+            </div>
+            <div class="badge" id="perspectiveBadge">Perspektif: Mata Penjajah</div>
+          </div>
+          <div class="panel-grid">
+            <div class="card">
+              <h4>Siapa yang Berdagang?</h4>
+              <div class="chart-box"><canvas id="tradeChart"></canvas></div>
+            </div>
+            <div class="card"><h4>Kondisi Rakyat Pribumi</h4><p id="nativeCondition">Mayoritas penduduk bekerja sebagai buruh pelabuhan dan petani penggarap dengan akses modal terbatas.</p></div>
+            <div class="card"><h4>Hari Ini</h4><p id="todayCondition">Surabaya tetap menjadi pusat perdagangan utama Jawa Timur, tetapi isu ketimpangan akses ekonomi masih relevan.</p></div>
+          </div>
+          <div class="cta-row">
+            <button class="small-btn primary" id="openArchiveBtn">📜 Baca Arsip Asli</button>
+            <button class="small-btn soft" id="copyFactBtn">📋 Salin Fakta</button>
+          </div>
+        </div>
+      </div>
+    </section>
 
-<br><br>
-<label>Tahun: <span id="yearLabel">1904</span></label>
-<input type="range" min="1904" max="1949" value="1904" id="yearSlider" style="width:100%">
-</div>
+    <section class="section" id="timeline">
+      <div class="section-head">
+        <div><h2>Timeline Sejarah</h2><p class="lead">Timeline ini menggantikan slider tahun. Fungsinya memberi konteks sejarah agar arsip 1904 tidak berdiri sendiri dan lebih mudah dipahami oleh pengguna umum.</p></div>
+      </div>
+      <div class="timeline-grid">
+        <div class="panel timeline-shell">
+          <div class="timeline"><div class="timeline-list" id="timelineList"></div></div>
+        </div>
+        <div class="panel timeline-detail">
+          <div class="timeline-year"><h3 id="timelineYear">1904</h3><div class="tag" id="timelineTag">Awal survei kolonial</div></div>
+          <p id="timelineText">Pemerintah kolonial Belanda menyusun laporan untuk memahami penyebab kemiskinan rakyat Jawa dan perubahan ekonomi yang terjadi di berbagai wilayah.</p>
+          <div class="timeline-facts">
+            <div class="mini"><strong>Makna arsip</strong><span id="timelineMeaning">Arsip menjadi sumber untuk membaca pola ekonomi, bukan sekadar dokumen administratif.</span></div>
+            <div class="mini"><strong>Relevansi hari ini</strong><span id="timelineRelevance">Kita bisa membandingkan struktur ekonomi kolonial dengan kondisi wilayah sekarang.</span></div>
+            <div class="mini"><strong>Catatan interaktif</strong><span id="timelineNote">Klik tahun lain untuk melihat konteks sejarah yang berbeda.</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-<div class="panel">
-<h3 id="regionTitle">Pilih Wilayah</h3>
-<div class="cards">
-<div class="card">
-<h4>Siapa yang Berdagang?</h4>
-<canvas id="tradeChart"></canvas>
-</div>
+    <section class="section" id="fakta">
+      <div class="section-head">
+        <div><h2>Kartu Fakta untuk Media Sosial</h2><p class="lead">Kartu ini bisa dibagikan ke Instagram, WhatsApp, dan X. Tampilannya dibuat sederhana agar mudah dipakai untuk promosi arsip dan literasi sejarah.</p></div>
+      </div>
+      <div class="social-grid">
+        <div class="panel social-card">
+          <div class="fact-card" id="factCard">
+            <div class="label">Fakta pilihan</div>
+            <h3 id="factTitle">Surabaya, 1905</h3>
+            <p id="factText">Dari total modal perdagangan yang tercatat, pedagang Tionghoa menguasai 68%, Eropa 24%, Arab 6%, dan pribumi 2%.</p>
+            <div class="share-actions">
+              <button class="small-btn primary" id="shareInstagram">Instagram</button>
+              <button class="small-btn soft" id="shareWhatsApp">WhatsApp</button>
+              <button class="small-btn ink" id="shareX">X</button>
+            </div>
+          </div>
+          <p class="note" style="margin-top:14px;">Tombol Instagram, WhatsApp, dan X akan membuka tautan berbagi dengan teks yang sudah disiapkan.</p>
+        </div>
+        <div class="panel social-card">
+          <div class="card" style="margin-bottom:12px;"><h4>Bagikan cepat</h4><p id="shareCaption">“Di Surabaya tahun 1905, pedagang Tionghoa menguasai 68% modal perdagangan yang tercatat. — ONDERZOEK.ID”</p></div>
+          <div class="card"><h4>Catatan penggunaan</h4><p>Untuk Instagram, browser akan diarahkan ke halaman Instagram agar kamu bisa menyalin caption dan mengunggah kartu ini secara manual. WhatsApp dan X akan langsung membuka teks berbagi yang sudah disiapkan.</p></div>
+        </div>
+      </div>
+    </section>
 
-<div class="card">
-<h4>Kondisi Rakyat Pribumi</h4>
-<p id="nativeInfo">Klik wilayah.</p>
-</div>
+    <section class="section" id="arsip">
+      <div class="section-head">
+        <div><h2>Viewer Arsip Dummy</h2><p class="lead">Tombol “Baca Arsip Asli” membuka viewer arsip contoh. Isinya dummy, tetapi memberi gambaran bagaimana pengalaman membaca scan arsip di website ini.</p></div>
+      </div>
+      <div class="panel viewer-shell">
+        <div class="note">Klik tombol di atas untuk membuka arsip. Di dalam viewer, kamu bisa berpindah halaman dummy seperti membuka scan dokumen.</div>
+        <div class="viewer-frame" style="margin-top:14px;">
+          <div class="viewer-page">
+            <div class="viewer-head"><div><h3>Pratinjau Arsip</h3><div class="viewer-meta">Niet-Inlandschen Handel en Nijverheid • halaman contoh</div></div><div class="pill">Scan digital</div></div>
+            <div class="archive-paper" id="previewPaper"><strong>Contoh isi arsip:</strong><br>“Laporan pengamatan perdagangan di wilayah Surabaya menunjukkan konsentrasi modal pada kelompok perantara tertentu, sementara penduduk pribumi lebih sering berada pada sektor buruh dan produksi kecil.”<div class="archive-note">Ini hanyalah simulasi tampilan. Di versi nyata, bagian ini dapat diganti dengan PDF arsip yang relevan.</div></div>
+          </div>
+          <div class="viewer-side">
+            <div class="thumb active" data-paper="0"><strong>Halaman 1 — Ringkasan</strong><span>Potongan narasi tentang perdagangan dan struktur sosial.</span></div>
+            <div class="thumb" data-paper="1"><strong>Halaman 2 — Tabel Contoh</strong><span>Data dummy komposisi pelaku ekonomi per wilayah.</span></div>
+            <div class="thumb" data-paper="2"><strong>Halaman 3 — Catatan Lapangan</strong><span>Cuplikan observasi dan interpretasi kolonial.</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
 
-<div class="card">
-<h4>Hari Ini</h4>
-<p id="todayInfo">Klik wilayah.</p>
-</div>
-</div>
+  <footer class="footer wrap">ONDERZOEK.ID — dari arsip kolonial ke pengalaman belajar yang interaktif</footer>
 
-<hr>
-<h4>Sudut Pandang</h4>
-<p id="perspectiveText">Pilih perspektif di atas.</p>
+  <div class="modal" id="archiveModal" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-head"><strong id="modalTitle">Viewer Arsip Dummy</strong><button class="close-btn" id="closeModal" aria-label="Tutup">×</button></div>
+      <div class="modal-body">
+        <div class="archive-scan">
+          <div class="scan">
+            <div class="scan-label">Halaman 1</div><h3>Ringkasan Laporan</h3>
+            <p>“Pengawasan atas aktivitas dagang menunjukkan adanya perbedaan akses modal yang sangat tajam antara kelompok perantara dagang dan penduduk lokal. Perubahan ekonomi terjadi cepat, namun kesejahteraan tidak merata.”</p>
+            <p>Dokumen ini dimaksudkan sebagai contoh viewer arsip yang dapat diganti dengan scan PDF asli dari koleksi DPAD.</p>
+          </div>
+          <div class="scan">
+            <div class="scan-label">Halaman 2</div><h3>Tabel Komposisi Ekonomi</h3>
+            <table class="scan-table">
+              <thead><tr><th>Wilayah</th><th>Dominasi</th><th>Catatan</th></tr></thead>
+              <tbody>
+                <tr><td>Surabaya</td><td>Tionghoa / Eropa</td><td>Jaringan pelabuhan kuat</td></tr>
+                <tr><td>Malang</td><td>Pertanian / perkebunan</td><td>Akses modal terbatas</td></tr>
+                <tr><td>Madura</td><td>Perdagangan kecil</td><td>Mobilitas antarpulau</td></tr>
+              </tbody>
+            </table>
+            <div class="scan-small">Catatan: angka di atas hanya dummy untuk tampilan. Di proyek final, tabel dapat diisi data arsip yang valid.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-<button onclick="alert('Viewer arsip akan dibuka pada versi final.')">📜 Baca Arsip Aslinya</button>
-<button onclick="shareFact()">📢 Bagikan Fakta</button>
-</div>
-</div>
-</section>
+  <script>
+    const datasets = {
+      surabaya: {
+        name: 'Surabaya',
+        description: 'Kota pelabuhan dengan dominasi jaringan dagang yang kuat dan akses modal yang timpang.',
+        trade: [68, 24, 6, 2],
+        native: 'Mayoritas penduduk bekerja sebagai buruh pelabuhan dan petani penggarap dengan akses modal terbatas.',
+        today: 'Surabaya tetap menjadi pusat perdagangan utama Jawa Timur, tetapi isu ketimpangan akses ekonomi masih relevan.',
+        factTitle: 'Surabaya, 1905',
+        factText: 'Dari total modal perdagangan yang tercatat, pedagang Tionghoa menguasai 68%, Eropa 24%, Arab 6%, dan pribumi 2%.',
+        share: 'Di Surabaya tahun 1905, pedagang Tionghoa menguasai 68% modal perdagangan yang tercatat. — ONDERZOEK.ID'
+      },
+      malang: {
+        name: 'Malang',
+        description: 'Wilayah agraris dan perkebunan dengan struktur ekonomi yang lebih banyak bertumpu pada tenaga kerja lokal.',
+        trade: [45, 25, 10, 20],
+        native: 'Sebagian besar masyarakat hidup dari pertanian, perkebunan, dan kerja upahan dengan ruang naik kelas ekonomi yang sempit.',
+        today: 'Malang berkembang sebagai pusat pendidikan dan agribisnis, namun ketimpangan akses lahan dan modal masih dibicarakan.',
+        factTitle: 'Malang, 1905',
+        factText: 'Komposisi ekonomi menunjukkan sektor agraris lebih dominan, sementara modal perdagangan tetap terkonsentrasi pada kelompok tertentu.',
+        share: 'Di Malang, struktur ekonomi kolonial memperlihatkan dominasi sektor agraris dan modal yang belum merata. — ONDERZOEK.ID'
+      },
+      madura: {
+        name: 'Madura',
+        description: 'Wilayah dengan perdagangan kecil, konektivitas antarpulau, dan ketahanan ekonomi berbasis usaha keluarga.',
+        trade: [30, 10, 5, 55],
+        native: 'Banyak penduduk hidup dari pertanian lahan kering, perdagangan kecil, dan kerja keluarga dengan keterbatasan sumber daya.',
+        today: 'Madura berkembang melalui konektivitas dan UMKM lokal, dengan identitas ekonomi yang lebih beragam.',
+        factTitle: 'Madura, 1905',
+        factText: 'Sebagian besar aktivitas ekonomi berada di perdagangan kecil dan kerja keluarga, dengan dominasi modal eksternal yang lebih rendah.',
+        share: 'Di Madura, ekonomi lokal tumbuh lewat perdagangan kecil dan usaha keluarga. — ONDERZOEK.ID'
+      }
+    };
 
-<footer>
-ONDERZOEK.ID — Arsip Kolonial Menjadi Pengetahuan Publik
-</footer>
+    const perspectiveCopy = {
+      kolonial: 'Mata Penjajah: “Aktivitas ekonomi dinilai melalui efisiensi jaringan, produktivitas, dan kontrol perdagangan.”',
+      pedagang: 'Mata Pedagang Non-Pribumi: “Wilayah ini dipandang sebagai peluang jaringan, distribusi, dan penguatan modal usaha.”',
+      pribumi: 'Mata Rakyat Pribumi: “Perdagangan berkembang, tetapi manfaatnya tidak selalu dirasakan merata oleh masyarakat lokal.”'
+    };
 
-<script>
-let currentPerspective='kolonial';
-let currentRegion='surabaya';
+    const timelineData = [
+      { year:'1904', tag:'Awal survei kolonial', text:'Pemerintah kolonial Belanda menyusun laporan untuk memahami penyebab kemiskinan rakyat Jawa dan perubahan ekonomi di berbagai wilayah.', meaning:'Arsip menjadi sumber untuk membaca pola ekonomi, bukan sekadar dokumen administratif.', relevance:'Kita bisa membandingkan struktur ekonomi kolonial dengan kondisi wilayah sekarang.', note:'Ini titik awal narasi ONDERZOEK.ID.' },
+      { year:'1910', tag:'Ekspansi pengamatan', text:'Pendataan dan pengawasan ekonomi semakin luas, terutama pada jalur perdagangan, pelabuhan, dan komoditas penting.', meaning:'Arsip membuka jejak pengawasan ekonomi kolonial.', relevance:'Membantu melihat bagaimana jalur dagang memengaruhi struktur wilayah.', note:'Klik tahun lain untuk membaca konteks berbeda.' },
+      { year:'1928', tag:'Pergerakan kebangsaan', text:'Semangat persatuan menguat, dan masyarakat mulai memikirkan masa depan ekonomi-politik di luar kerangka kolonial.', meaning:'Sejarah ekonomi tidak lepas dari tumbuhnya kesadaran kebangsaan.', relevance:'Perubahan ekonomi dapat dibaca bersama perubahan identitas politik.', note:'Narasi konteks sosial ikut berubah.' },
+      { year:'1942', tag:'Pendudukan Jepang', text:'Kondisi ekonomi berubah drastis. Mobilisasi sumber daya dan kontrol distribusi menjadi semakin ketat.', meaning:'Periode ini menunjukkan bagaimana kekuasaan baru mengubah kehidupan ekonomi.', relevance:'Membandingkan masa kolonial Belanda dan Jepang memperkaya pembacaan sejarah.', note:'Transisi kekuasaan memengaruhi lapisan ekonomi rakyat.' },
+      { year:'1945', tag:'Proklamasi Kemerdekaan', text:'Kemerdekaan membuka harapan baru bagi pengelolaan ekonomi dan sumber daya oleh bangsa sendiri.', meaning:'Arsip kolonial bisa dibaca ulang dari perspektif kemerdekaan.', relevance:'Kita bisa menilai mana struktur lama yang bertahan dan mana yang berubah.', note:'Titik penting untuk refleksi historis.' },
+      { year:'1949', tag:'Pengakuan kedaulatan', text:'Indonesia mendapatkan pengakuan kedaulatan, menandai babak baru dalam pengaturan ekonomi dan pemerintahan.', meaning:'Pengakuan ini menjadi penutup fase kolonial dan pembuka fase negara merdeka.', relevance:'Timeline membantu pengguna melihat kesinambungan dari kolonial ke nasional.', note:'Cocok untuk penutup narasi sejarah.' }
+    ];
 
-const regions={
-surabaya:{
-trade:[68,24,6,2],
-native:"Mayoritas penduduk bekerja sebagai buruh pelabuhan dan petani penggarap dengan akses modal terbatas.",
-today:"Surabaya tetap menjadi pusat perdagangan utama Jawa Timur.",
-perspectives:{
-kolonial:"Perdagangan berkembang melalui jaringan distribusi yang efisien.",
-pedagang:"Surabaya menawarkan peluang ekonomi besar bagi jaringan dagang regional.",
-pribumi:"Pertumbuhan perdagangan tidak selalu meningkatkan kesejahteraan rakyat lokal."
-}},
-malang:{
-trade:[45,25,10,20],
-native:"Sebagian besar masyarakat hidup dari pertanian dan perkebunan.",
-today:"Malang berkembang sebagai pusat pendidikan dan agribisnis.",
-perspectives:{
-kolonial:"Wilayah agraris yang produktif.",
-pedagang:"Komoditas perkebunan membuka pasar baru.",
-pribumi:"Keuntungan ekonomi sering tidak dinikmati petani kecil."
-}},
-madura:{
-trade:[30,10,5,55],
-native:"Banyak penduduk hidup dari pertanian lahan kering dan perdagangan kecil.",
-today:"Madura berkembang melalui konektivitas dan UMKM lokal.",
-perspectives:{
-kolonial:"Wilayah pendukung ekonomi regional.",
-pedagang:"Potensi distribusi antarpulau cukup besar.",
-pribumi:"Keterbatasan sumber daya memperbesar tantangan ekonomi."
-}}
-};
+    const state = { region:'surabaya', perspective:'kolonial', timelineIndex:0, paperIndex:0 };
 
-let chart;
+    const tradeChart = new Chart(document.getElementById('tradeChart'), {
+      type:'doughnut',
+      data:{
+        labels:['Tionghoa','Eropa','Arab','Pribumi'],
+        datasets:[{ data:datasets.surabaya.trade, backgroundColor:['#305e66','#9d5b57','#b98a4a','#d9c29a'], borderWidth:0, hoverOffset:8 }]
+      },
+      options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        cutout:'64%',
+        plugins:{
+          legend:{ position:'bottom', labels:{ usePointStyle:true, boxWidth:10, padding:16, color:'#66584a', font:{ size:12.5, family:'Inter, system-ui, sans-serif' } } },
+          tooltip:{ callbacks:{ label:(ctx)=>`${ctx.label}: ${ctx.raw}%` } }
+        }
+      }
+    });
 
-function loadRegion(region){
-currentRegion=region;
-const d=regions[region];
-document.getElementById('regionTitle').innerText=region.toUpperCase();
-document.getElementById('nativeInfo').innerText=d.native;
-document.getElementById('todayInfo').innerText=d.today;
-document.getElementById('perspectiveText').innerText=d.perspectives[currentPerspective];
+    function updateRegion(region){
+      state.region = region;
+      const d = datasets[region];
+      document.getElementById('regionName').textContent = d.name;
+      document.getElementById('regionDescription').textContent = d.description;
+      document.getElementById('nativeCondition').textContent = d.native;
+      document.getElementById('todayCondition').textContent = d.today;
+      document.getElementById('factTitle').textContent = d.factTitle;
+      document.getElementById('factText').textContent = d.factText;
+      document.getElementById('shareCaption').textContent = `“${d.share}”`;
+      document.getElementById('activeRegionPill').textContent = `Wilayah: ${d.name}`;
+      tradeChart.data.datasets[0].data = d.trade;
+      tradeChart.update();
+      document.querySelectorAll('.region').forEach(el => el.classList.toggle('active', el.dataset.region === region));
+      document.getElementById('regionDescription').textContent += ' ' + perspectiveCopy[state.perspective];
+    }
 
-if(chart) chart.destroy();
-chart=new Chart(document.getElementById('tradeChart'),{
-type:'pie',
-data:{
-labels:['Tionghoa','Eropa','Arab','Pribumi'],
-datasets:[{data:d.trade}]
-}
-});
-}
+    function updatePerspective(perspective){
+      state.perspective = perspective;
+      document.querySelectorAll('.perspective-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.perspective === perspective));
+      const labels = { kolonial:'Perspektif: Mata Penjajah', pedagang:'Perspektif: Pedagang Non-Pribumi', pribumi:'Perspektif: Rakyat Pribumi' };
+      document.getElementById('perspectiveBadge').textContent = labels[perspective];
+      updateRegion(state.region);
+    }
 
-function setPerspective(p){
-currentPerspective=p;
-document.getElementById('perspectiveText').innerText=regions[currentRegion].perspectives[p];
-}
+    function updateTimeline(index){
+      state.timelineIndex = index;
+      const item = timelineData[index];
+      document.getElementById('timelineYear').textContent = item.year;
+      document.getElementById('timelineTag').textContent = item.tag;
+      document.getElementById('timelineText').textContent = item.text;
+      document.getElementById('timelineMeaning').textContent = item.meaning;
+      document.getElementById('timelineRelevance').textContent = item.relevance;
+      document.getElementById('timelineNote').textContent = item.note;
+      document.querySelectorAll('.timeline-item').forEach((el, i) => el.classList.toggle('active', i === index));
+    }
 
-document.getElementById('yearSlider').oninput=function(){
-document.getElementById('yearLabel').innerText=this.value;
-};
+    function createTimeline(){
+      const list = document.getElementById('timelineList');
+      list.innerHTML = '';
+      timelineData.forEach((item, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'timeline-item' + (idx === 0 ? ' active' : '');
+        btn.innerHTML = `<div class="timeline-dot"></div><strong>${item.year}</strong><span>${item.tag}</span>`;
+        btn.addEventListener('click', () => updateTimeline(idx));
+        list.appendChild(btn);
+      });
+    }
 
-function shareFact(){
-alert("Fakta siap dibagikan:\\nDi Surabaya tahun 1905, pedagang Tionghoa menguasai 68% modal perdagangan yang tercatat.");
-}
+    const papers = [
+      `<div class="archive-paper"><strong>Contoh isi arsip:</strong><br>“Laporan pengamatan perdagangan di wilayah Surabaya menunjukkan konsentrasi modal pada kelompok perantara tertentu, sementara penduduk pribumi lebih sering berada pada sektor buruh dan produksi kecil.”<div class="archive-note">Ini hanyalah simulasi tampilan. Di versi nyata, bagian ini dapat diganti dengan PDF arsip yang relevan.</div></div>`,
+      `<div class="archive-paper"><strong>Contoh tabel arsip:</strong><br>Surabaya: perdagangan pelabuhan kuat. Malang: agraris/perkebunan. Madura: perdagangan kecil dan konektivitas antarpulau.<div class="archive-note">Semua angka dan isi pada halaman ini adalah dummy untuk demo.</div></div>`,
+      `<div class="archive-paper"><strong>Catatan lapangan dummy:</strong><br>“Rakyat lokal menghadapi keterbatasan modal, akses distribusi, dan ketergantungan pada struktur ekonomi yang dikendalikan dari luar.”<div class="archive-note">Tampilan ini dibuat seperti scan arsip agar pengalaman menjelajah terasa nyata.</div></div>`
+    ];
 
-loadRegion('surabaya');
-</script>
+    function setPaper(index){
+      state.paperIndex = index;
+      document.getElementById('previewPaper').innerHTML = papers[index];
+      document.querySelectorAll('.thumb').forEach((el, i) => el.classList.toggle('active', i === index));
+    }
+
+    document.querySelectorAll('.region').forEach(el => {
+      const handler = () => updateRegion(el.dataset.region);
+      el.addEventListener('click', handler);
+      el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handler(); } });
+    });
+    document.querySelectorAll('.perspective-btn').forEach(btn => btn.addEventListener('click', () => updatePerspective(btn.dataset.perspective)));
+    document.querySelectorAll('.thumb').forEach(el => el.addEventListener('click', () => setPaper(Number(el.dataset.paper))));
+    document.getElementById('openArchiveBtn').addEventListener('click', () => { document.getElementById('archiveModal').classList.add('open'); document.getElementById('archiveModal').setAttribute('aria-hidden', 'false'); });
+    document.getElementById('closeModal').addEventListener('click', () => { document.getElementById('archiveModal').classList.remove('open'); document.getElementById('archiveModal').setAttribute('aria-hidden', 'true'); });
+    document.getElementById('archiveModal').addEventListener('click', (e) => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('open'); });
+
+    function shareText(){ const d = datasets[state.region]; return `${d.share} — ${window.location.href}`; }
+    document.getElementById('copyFactBtn').addEventListener('click', async () => {
+      try{
+        await navigator.clipboard.writeText(document.getElementById('shareCaption').textContent + '\n' + window.location.href);
+        document.getElementById('copyFactBtn').textContent = '✅ Tersalin';
+        setTimeout(() => document.getElementById('copyFactBtn').textContent = '📋 Salin Fakta', 1400);
+      } catch { alert('Gagal menyalin otomatis. Kamu bisa salin manual dari kartu fakta.'); }
+    });
+    document.getElementById('shareWhatsApp').addEventListener('click', () => window.open(`https://wa.me/?text=${encodeURIComponent(shareText())}`, '_blank', 'noopener,noreferrer'));
+    document.getElementById('shareX').addEventListener('click', () => window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(document.getElementById('shareCaption').textContent + ' ' + window.location.href)}`, '_blank', 'noopener,noreferrer'));
+    document.getElementById('shareInstagram').addEventListener('click', () => window.open('https://www.instagram.com/', '_blank', 'noopener,noreferrer'));
+
+    createTimeline();
+    updateRegion('surabaya');
+    updatePerspective('kolonial');
+    updateTimeline(0);
+    setPaper(0);
+  </script>
 </body>
 </html>
